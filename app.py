@@ -17,9 +17,26 @@ st.set_page_config(
 
 BASE_DIR = os.getcwd()
 
-diabetes_model = joblib.load(os.path.join(BASE_DIR, 'diabetes_final.pkl'))
-heart_disease_model = joblib.load(os.path.join(BASE_DIR, 'heart_final.pkl'))
-kidney_disease_model = joblib.load(os.path.join(BASE_DIR, 'kindey_final.pkl'))  # لاحظ الاسم
+# ----------------- LOAD MODELS SAFELY -----------------
+def load_model(filename):
+    try:
+        path = os.path.join(BASE_DIR, filename)
+        model = joblib.load(path)
+        return model
+    except AttributeError as e:
+        st.error(f"AttributeError loading {filename}: {e}")
+        st.stop()
+    except FileNotFoundError:
+        st.error(f"File not found: {filename}")
+        st.stop()
+    except Exception as e:
+        st.error(f"Unexpected error loading {filename}: {e}")
+        st.stop()
+
+diabetes_model = load_model('diabetes_final.pkl')
+heart_disease_model = load_model('heart_final.pkl')
+kidney_disease_model = load_model('kindey_final.pkl')   
+
 
 # ----------------- Recommendation functions -----------------
 def diabetes_recommendations(data, prediction):
@@ -725,3 +742,4 @@ else:  # "Kidney Disease Prediction"
             mime="application/pdf",
 
         )
+
